@@ -3,6 +3,10 @@ name: CI
 on:
   workflow_call:
     inputs:
+      gh-pages-docs:
+        required: false
+        type: boolean
+        default: false
       setup-vault:
         required: false
         type: boolean
@@ -57,6 +61,8 @@ jobs:
     needs:
       - pre-commit
     uses: salt-extensions/central-artifacts/.github/workflows/docs-action.yml@main
+    with:
+      gh-pages-docs: ${{ inputs.gh-pages-docs }}
 
   build-python-package:
     name: Python Package

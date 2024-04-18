@@ -31,6 +31,12 @@ jobs:
       run: |
         nox --force-color -e docs
 
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        name: html-docs
+        path: docs/_build/html
+
     - name: Set Exit Status
       if: always()
       run: |
@@ -44,3 +50,24 @@ jobs:
         name: exitstatus
         path: exitstatus
         if-no-files-found: error
+
+  # This requires `pages: write` and `id-token: write` permissions
+  Deploy-Docs-GH-Pages:
+    name: Publish Docs to GitHub Pages
+    needs: Docs
+    if: |
+      ${{ inputs.gh-pages-docs }} &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: html-docs
